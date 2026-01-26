@@ -1,0 +1,44 @@
+Project and Resource Requirements
+Stakeholders & People Requirements
+1.	Comprehensive list of all stakeholders who will participate in the requirement‑gathering sessions for developing the BRD and defining the dashboard KPIs.
+2.	Executive sponsor or representative (decision authority)
+3.	Project lead/manager (requirements and acceptance)
+4.	Data owners/stewards (source system accountability)
+5.	IT/security focal person (infrastructure and access)
+6.	UAT representatives (testing and sign-off)
+Access and Operational Support
+1.	System and environment access for the delivery team
+2.	Access to collaboration tools and repository for project documents
+3.	Logo, color palette, and naming conventions (portal name, URL preference)
+4.	Preferred UI/UX standards
+Technology and Infrastructure requirements
+Hosting & Environment
+•	On-prem infrastructure for: Development/Testing/Production environment
+•	Git based repository
+•	Internet-facing setup (domain, DNS, SSL certificates)
+•	Network configurations (firewalls, IP whitelisting, VPN if required)
+Platform & Core Services
+•	Compute resources (VMs, containers, or app services)
+•	Storage (database, data lake/object storage, backups)
+•	Analytics/BI tool for dashboards (Superset)
+•	Identity service for authentication (SSO, IAM, Entra, Okta, etc.)
+Security & Compliance
+•	Access to IAM/role management
+•	List of user roles (Admin, Data Steward, Analyst, Viewer, API Consumer, etc.)
+•	Any role restrictions (e.g., district-only access).
+•	Data security standards and internet exposure policy to comply with (e.g., NDPA)
+•	Logging, monitoring, and audit tooling
+•	Backup and disaster recovery expectations
+Data Source & Integration Requirements
+1.	List of all source systems (UNICEF, JAMB, NCAOOSC) and owners
+2.	Access credentials/API keys/database connections
+3.	Defined rules and user roles for data upload and approval
+4.	Defined rules and user roles for data export
+5.	Data dictionaries, schemas, and documentation
+6.	Data quality and validation rules
+7.	Data retention (Historical data) and archiving policies and scope
+8.	Personal Identifiable Information (PII) handling policies and scope
+9.	Expected refresh frequency and data volumes
+10.	Sample datasets for development and testing
+11.	Cadence for data refresh
+12.	Approval of any middleware or integration tools required for data ingestion
