@@ -1,2 +1,8 @@
 Connect to data source API endpoint 
 extract data from data source
+store the data in a lakehouse (bronze)
+move data from lake house into analytical db
+check data quality and validation 
+stage data and do basic transformation (silver)
+make the data ready for business need (gold)
+do visualization for business insight
