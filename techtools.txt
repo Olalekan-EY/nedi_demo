@@ -2,9 +2,7 @@ Docker
 DBT
 Snowflake
 Data bricks
-SQL
-Power BI 
 Clickhouse
 Airbyte
 Airflow
-Apache Spark
+Apache Spark 
