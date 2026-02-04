@@ -1,0 +1,72 @@
+Hi guys, Heritage here ):... Below are lists of git commands.
+
+ls: Lists the content if our current folder/directory
+
+open .: Helps open up the current folder/directory
+
+ls Pets/: Lists the contents of Pets folder/directory
+
+ls Pets/Cats: Lists the contents of the Cats directory that is inside the Pets directory
+
+clear: Helps clear up the terminal
+
+pwd: "Print Working Directory" - Shows the path of the current directory
+
+cd: "Change Directory" - Helps to change directory or move from one directory to another
+
+cd Code/: Helps change to the Code folder
+
+cd..: Helps move one step backwards into the directory
+
+touch animals.txt: Creates a new file named animals.txt
+
+mkdir Movies: Creates a folder called Movies
+
+rm plants: deletes the plants file
+
+rm -rf Movies: deletes the movies folder/directory
+
+git log: Shows both commits in the repository history.
+
+git commit -m "my message": Creates a commit with the message "my message" (When we make a commit, we must provide a message summarizing the changes in the commit)
+
+git switch -a -m "my message": Adds new files to staging and commits all together.
+
+.gitignore: creating a ".gitignore" file is used to store files you know you NEVER want to commit. It must be in the root folder of your project. Inside this file, we can write patterns to tell GIt which files & folders to ignore: ".DS_Store" will ignore files named .DS_store, "folderName/" will ignore an entire folder.
+
+git branch: Helps to view existing branches. The branch we are currently on will have "*" attached to it.
+
+git branch branch-name: Creates a new branch based upon the current HEAD. This just creates the branch, it does not switch you to that branch.
+
+git switch branch-name: Helps to switch branches
+
+git checkout branch-name: Also helps switch branches but it does alot more than that (this is the old way of switching)
+
+git switch -c branch-name: This helps creates and switch at one go.
+
+git switch -d branch-name: deletes a branch, and you can only delete a branch when you are out of the branch
+
+git branch -m branch-name: renames a branch, and you can only do that inside the branch you are in.
+
+git merge branch-name: merges two branches together. It is important to not that we always merge to the current HEAD branch, we merge to the branch where HEAD is pointing to.
+
+git diff: Compares Staging Area and Working Directory
+helps views the changes between commits, branches, files, our working directory, and more! Lists all the changes in our working directory that are NOT staged for the next commit.
+
+git diff HEAD: lists all changes in the working directory tree since the last commit, including staged and unstaged changes.
+
+git diff --staged / git diff cached: lists the changes between the staging area and our last commit.
+
+git diff HEAD (filename) & git diff --staged (filename): helps view changes within a specific file by providing git diff with a filename.
+
+git diff branch1..branch2: lists the changes between the tips of branch1 and branch2
+
+git stash: puts stuffs in the stash
+
+git stash pop: removes what's in the stash
+
+git restore --staged filename: Unstages a file in staging
+
+git restore filename: Helps to unmodify changes made to a file
+
+git reset (commit-hashcode): helps reset the repo back to a specific commit. Suppose you have just made a couple of commits on the master branch, but you actually meant to make them on a separate branch instead.
