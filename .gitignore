@@ -1,0 +1,5 @@
+dbt/
+data_source/
+.DS_Store
+.idea
+.env

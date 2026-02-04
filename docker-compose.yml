@@ -1,0 +1,243 @@
+services:
+  # ============================================================================
+  # DATABASE SERVICES
+  # ============================================================================
+  
+  postgres:
+    image: postgres:18.1
+    container_name: postgres_db
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    networks:
+      - database_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 8s
+      retries: 5
+
+  # ============================================================================
+  # DATABASE UI SERVICES
+  # ============================================================================
+  
+  pgadmin:
+    image: dpage/pgadmin4:9.10
+    container_name: pgadmin
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - database_network
+
+  clickhouse:
+    image: clickhouse:25.10
+    container_name: clickhouse_db
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "8123:8123"   # HTTP interface
+      - "9001:9000"   # Native protocol
+      - "9009:9009"   # Interserver / gRPC
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    networks:
+      - database_network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8123/ping"]
+      interval: 10s
+      timeout: 8s
+      retries: 5
+
+  ch-ui:
+    image: ghcr.io/caioricciuti/ch-ui:latest
+    container_name: ch_ui
+    restart: always
+    ports:
+      - "5521:5521"
+    env_file:
+      - .env
+    depends_on:
+      - clickhouse
+    networks:
+      - database_network
+
+  # ============================================================================
+  # APPLICATION SERVICES
+  # ============================================================================
+  
+  setup:
+    build:
+      context: .
+      dockerfile: ./setup/Dockerfile
+    container_name: setup_service
+    restart: "no"
+    env_file:
+      - .env
+    networks:
+      - database_network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+    command: sh -c "python clickhouse/setup.py && python data_source/setup.py"
+  
+  dbt:
+    build:
+      context: ./dbt
+      dockerfile: Dockerfile
+    container_name: dbt_service
+    restart: "no"
+    env_file:
+      - .env
+    networks:
+      - database_network
+      - dagster_network
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    working_dir: /app
+    command: ["dbt", "--version"]
+  
+  fastapi:
+    build:
+      context: ./fast_api
+    container_name: fastapi_app
+    restart: always
+    depends_on:
+      - postgres
+      - clickhouse
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    networks:
+      - database_network
+      - dagster_network
+
+  # ============================================================================
+  # DAGSTER SERVICES
+  # ============================================================================
+  
+  # PostgreSQL database for Dagster storage
+  dagster_postgresql:
+    image: postgres:18.1
+    container_name: dagster_postgresql
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DAGSTER_POSTGRES_USER}
+      POSTGRES_PASSWORD: ${DAGSTER_POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DAGSTER_POSTGRES_DB}
+    volumes:
+      - dagster_postgres_data:/var/lib/postgresql
+    networks:
+      - dagster_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DAGSTER_POSTGRES_USER} -d ${DAGSTER_POSTGRES_DB}"]
+      interval: 10s
+      timeout: 8s
+      retries: 5
+
+  # User code gRPC server
+  dagster_user_code:
+    build:
+      context: .
+      dockerfile: ./dagster/Dockerfile_user_code
+    container_name: dagster_user_code
+    image: dagster_user_code_image
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./dbt:/app/dbt
+    networks:
+      - database_network
+      - dagster_network
+
+  # Dagster webserver
+  dagster_webserver:
+    build:
+      context: ./dagster
+      dockerfile: ./Dockerfile_dagster
+    entrypoint:
+      - dagster-webserver
+      - -h
+      - "0.0.0.0"
+      - -p
+      - "3000"
+      - -w
+      - workspace.yaml
+    container_name: dagster_webserver
+    restart: always
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/dagster_storage:/tmp/dagster_storage
+    networks:
+      - database_network
+      - dagster_network
+    depends_on:
+      dagster_postgresql:
+        condition: service_healthy
+      dagster_user_code:
+        condition: service_started
+
+  # Dagster daemon for schedules and sensors
+  dagster_daemon:
+    build:
+      context: ./dagster
+      dockerfile: ./Dockerfile_dagster
+    entrypoint:
+      - dagster-daemon
+      - run
+    container_name: dagster_daemon
+    restart: on-failure
+    env_file:
+      - .env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/dagster_storage:/tmp/dagster_storage
+    networks:
+      - database_network
+      - dagster_network
+    depends_on:
+      dagster_postgresql:
+        condition: service_healthy
+      dagster_user_code:
+        condition: service_started
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+
+networks:
+  database_network:
+    driver: bridge
+    name: database_network
+  dagster_network:
+    driver: bridge
+    name: dagster_network
+
+# ============================================================================
+# VOLUMES
+# ============================================================================
+
+volumes:
+  postgres_data:
+  clickhouse_data:
+  dagster_postgres_data:

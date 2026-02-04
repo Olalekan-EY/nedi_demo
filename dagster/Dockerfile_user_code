@@ -1,0 +1,31 @@
+FROM python:3.12-slim
+
+# Install Dagster libraries, requests, and dbt with ClickHouse adapter
+RUN pip install \
+    dagster \
+    dagster-postgres \
+    dagster-docker \
+    requests \
+    dbt-core==1.10.15 \
+    dbt-clickhouse==1.9.7 \
+    clickhouse-connect==0.10.0
+
+# Set working directory inside the container
+WORKDIR /opt/dagster/app
+
+# Copy Dagster job files
+COPY dagster/job.py .
+COPY dagster/schedule.py .
+COPY dagster/definitions.py .
+
+# Copy dbt project into the image
+# This ensures dbt is available even when DockerRunLauncher creates new containers
+WORKDIR /app
+COPY dbt ./dbt
+
+# Expose gRPC port for Dagster to connect
+EXPOSE 4000
+
+# Run Dagster gRPC server pointing to your definitions file
+WORKDIR /opt/dagster/app
+CMD ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-f", "definitions.py"]

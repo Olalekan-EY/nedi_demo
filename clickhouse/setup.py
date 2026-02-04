@@ -19,7 +19,7 @@ def run_clickhouse_query(query: str):
         auth=AUTH
     )
     if response.status_code != 200:
-        raise Exception(f"ClickHouse Error: {response.text}")
+        raise Exception(f"ClickHouse Error: {response.text}") 
     return response.text
 
 
