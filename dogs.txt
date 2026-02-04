@@ -1,0 +1,16 @@
+Bulldog
+Husky
+Labrador Retriever
+Cane Corso
+Pug
+German Sherperd
+Golden Retriever
+Great Dane
+Chihuahua
+Caucasian
+Pitbull
+Belgian Shepherd
+Dobermann
+Australian Shepherd
+Rottweiler
+Boxer
